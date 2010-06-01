@@ -28,7 +28,8 @@ class ResultEvent(wx.PyEvent):
 
 class WorkerThread(Thread):
     """Worker Thread Class."""
-                                  def __init__(self, notify_window):
+                                 
+    def __init__(self, notify_window):
         """Init Worker Thread Class."""
         Thread.__init__(self)
         self._notify_window = notify_window
