@@ -28,17 +28,16 @@ class ResultEvent(wx.PyEvent):
 
 class WorkerThread(Thread):
     """Worker Thread Class."""
-    def __init__(self, notify_window, host):
+                                  def __init__(self, notify_window):
         """Init Worker Thread Class."""
         Thread.__init__(self)
         self._notify_window = notify_window
         self.image = None
-        self.host = host
 
     def run(self):
         while True:
             log.debug("Thread downloading...")
-            img = convert_rgb565.__download__(self.host)
+            img = convert_rgb565.__download__("phone.leo")
             tmp_file = tempfile.mkstemp()[1]
             output = open(tmp_file, 'wb')
             img.save(output, 'bmp')
@@ -53,7 +52,7 @@ class WorkerThread(Thread):
 
 
 class CameraFrame(wx.Frame):
-    def __init__(self, host, parent=None, id=wx.ID_ANY,
+    def __init__(self, parent=None, id=wx.ID_ANY,
                  pos=wx.DefaultPosition):
 
         wx.Frame.__init__(self, parent, id,
@@ -73,28 +72,25 @@ class CameraFrame(wx.Frame):
 
     def OnPaint(self, event):
         log.debug("OnPaint()")
-        #dc = wx.BufferedPaintDC(self, self._Buffer)
-        self.Draw()
+        dc = wx.BufferedPaintDC(self, self._Buffer)
 
     def OnSize(self, event):
         log.debug("OnSize!")
         self.Width, self.Height = self.GetClientSizeTuple()
         self._Buffer = wx.EmptyBitmap(self.Width, self.Height)
-#        self.Draw()
+        self.Draw()
 
     def OnResult(self, event):
         log.debug("OnResult(%s)" % event.data)
         tmp_file = event.data
         
         self.image = wx.Image(tmp_file, wx.BITMAP_TYPE_ANY).ConvertToBitmap()
-        #os.remove(tmp_file)
+        os.remove(tmp_file)
         self.Update()
         
     def Draw(self):
+        return
         #~ log.debug("Draw()")
-        
-        if not self._Buffer:
-            return
         dc = wx.BufferedPaintDC(self, self._Buffer)
         dc.Clear()
 
@@ -183,15 +179,15 @@ class CameraFrame(wx.Frame):
         self.image = wx.Image(tmp_file, wx.BITMAP_TYPE_ANY).ConvertToBitmap()
         os.remove(tmp_file)
 
-        
+        self.Update()
+
     def Update(self):
         self.Draw()
         wx.Frame.Update(self)
-        self.Paint()
 
-def main(host):
+def main():
     app = wx.App()
-    window = CameraFrame(host)
+    window = CameraFrame()
     window.Update()
     window.Show(True)
 
